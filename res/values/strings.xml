@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">GpsCommunication</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">设备列表</string>
+    <string name="btn_send">发送</string>
+
+</resources>
