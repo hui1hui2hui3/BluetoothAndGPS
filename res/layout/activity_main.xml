@@ -4,13 +4,26 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
+    <ProgressBar
+        android:id="@+id/progress_auto_connect"
+        style="?android:attr/progressBarStyleLargeInverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+       	android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp" />
+
     <Button
         android:id="@+id/btn_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="74dp"
-        android:text="@string/btn_send"/>
+        android:layout_marginBottom="113dp"
+        android:enabled="false"
+        android:height="80sp"
+        android:text="@string/btn_send"
+        android:textSize="30sp"
+        android:width="150sp" />
 
 </RelativeLayout>

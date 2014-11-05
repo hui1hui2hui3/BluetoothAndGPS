@@ -70,6 +70,7 @@ public class DiscoveryActivity extends ListActivity {
 					R.layout.device, new String[] { "name", "address" },
 					new int[] { R.id.name, R.id.address });
 			this.setListAdapter(listAdapter);
+			displayLongToast("请选择一个蓝牙设备进行连接！");
 		} else {
 			displayLongToast("没有已配对的设备！");
 		}
