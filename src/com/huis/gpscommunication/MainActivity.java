@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -31,6 +32,7 @@ public class MainActivity extends Activity {
 	BluetoothDevice device;
 	BluetoothSocket socket;
 	DataOutputStream outStream;
+	AutoConnectTask autoConnTask;
 	
 	Button btnSend;
 	ProgressBar progressAutoConnect;
@@ -57,23 +59,20 @@ public class MainActivity extends Activity {
 			}
 		});
 		progressAutoConnect = (ProgressBar) findViewById(R.id.progress_auto_connect);
-		new AutoConnectTask(this).execute();
-	}
-	
-	@Override
-	protected void onStart() {
-		super.onStart();
-		
-		//if Bluetooth is not on, request that is be enabled
-		//startChart will be called during onActivityResult
+		autoConnTask = new AutoConnectTask(this);
 		if(!adapter.isEnabled()) {
 			Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(intent, REQUEST_ENABLE_BT);
 			//不做提示强行打开蓝牙
 			//adapter.enable();
 		} else {
-			if(outStream == null) selectDevice(false);
+			autoConnTask.execute();
 		}
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
 	}
 	
 	@Override
@@ -88,7 +87,7 @@ public class MainActivity extends Activity {
 		case REQUEST_ENABLE_BT:
 			if (resultCode == Activity.RESULT_OK) {
 				displayLongToast("打开蓝牙成功！");
-				selectDevice(false);
+				autoConnTask.execute();
 			} else {
 				displayLongToast("蓝牙不可用！");
 				finish();
@@ -110,7 +109,20 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
-
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int itemId = item.getItemId();
+		switch (itemId) {
+		case R.id.device_list:
+			selectDevice(true);
+			break;
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
 	/**
 	 * 自动连接设备线程(异步)
 	 * @author Administrator
@@ -188,7 +200,6 @@ public class MainActivity extends Activity {
 	public void selectDevice(boolean isForce){
 		if(isForce || isNeedDeviceList) {
 			Intent intent = new Intent(this,DiscoveryActivity.class);
-			displayLongToast("请选择一个蓝牙设备进行连接！");
 			startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
 		}
 	}
