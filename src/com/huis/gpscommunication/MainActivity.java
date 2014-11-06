@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
 	AutoConnectTask autoConnTask;
 	
 	Button btnSend;
+	Button btnListDevice;
 	ProgressBar progressAutoConnect;
 	
 	boolean isNeedDeviceList = false;
@@ -56,6 +57,13 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				sendMessage("GPS:121.32312:32.32322:上海市红牛而是路可是减肥工厂");
+			}
+		});
+		btnListDevice = (Button) findViewById(R.id.btn_list_device);
+		btnListDevice.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				selectDevice(true);
 			}
 		});
 		progressAutoConnect = (ProgressBar) findViewById(R.id.progress_auto_connect);
@@ -96,7 +104,11 @@ public class MainActivity extends Activity {
 		case REQUEST_CONNECT_DEVICE:
 			if (resultCode == Activity.RESULT_OK) {
 				String addressStr = data.getExtras().getString(DiscoveryActivity.EXTRA_DEVICE_ADDRESS);
-				connectDevice(addressStr);
+				boolean isConn = connectDevice(addressStr);
+				if(!isConn) {
+					displayLongToast("设备连接失败！");
+					btnListDevice.setVisibility(Button.VISIBLE);
+				}
 			}
 			break;
 		default:
@@ -176,7 +188,7 @@ public class MainActivity extends Activity {
 			isNeedDeviceList = !result;
 			if(result) {
 				displayLongToast("设备已自动连接成功！");
-				btnSend.setEnabled(true);
+				btnSend.setVisibility(Button.VISIBLE);
 			} else {
 				displayLongToast("无可用设备！请手动选择设备进行连接");
 				selectDevice(false);
@@ -198,6 +210,8 @@ public class MainActivity extends Activity {
 	 * @param isForce : 是否强制打开设备列表
 	 */
 	public void selectDevice(boolean isForce){
+		btnSend.setVisibility(Button.GONE);
+		btnListDevice.setVisibility(Button.GONE);
 		if(isForce || isNeedDeviceList) {
 			Intent intent = new Intent(this,DiscoveryActivity.class);
 			startActivityForResult(intent, REQUEST_CONNECT_DEVICE);

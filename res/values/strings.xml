@@ -5,5 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">设备列表</string>
     <string name="btn_send">发送</string>
+    <string name="btn_list_device">设备列表</string>
+    <string name="btn_refresh_list">刷新列表</string>
 
 </resources>

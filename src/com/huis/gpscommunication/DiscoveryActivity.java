@@ -98,6 +98,17 @@ public class DiscoveryActivity extends ListActivity {
 	}
 	
 	/**
+	 * 刷新设备列表
+	 * @param v : 响应的视图
+	 */
+	public void refreshList(View v){
+		if(!adapter.isDiscovering()) {
+			listAdapter.clear();
+			adapter.startDiscovery();	//开始搜索设备
+		}
+	}
+	
+	/**
 	 * 蓝牙广播接收器
 	 * @author Administrator
 	 */
