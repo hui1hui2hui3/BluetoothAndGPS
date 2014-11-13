@@ -10,8 +10,10 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -33,6 +35,7 @@ public class MainActivity extends Activity {
 	BluetoothSocket socket;
 	DataOutputStream outStream;
 	AutoConnectTask autoConnTask;
+	BroadcastReceiver blueStatusReceiver;
 	
 	Button btnSend;
 	Button btnListDevice;
@@ -52,35 +55,56 @@ public class MainActivity extends Activity {
 			finish();
 			return;
 		}
+		this.init();
+	}
+	
+	private void init() {
 		btnSend = (Button) findViewById(R.id.btn_send);
+		btnListDevice = (Button) findViewById(R.id.btn_list_device);
+		progressAutoConnect = (ProgressBar) findViewById(R.id.progress_auto_connect);
+		autoConnTask = new AutoConnectTask(this);
+		blueStatusReceiver = new BlueToothStatusReceiver();
+		
 		btnSend.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				sendMessage("GPS:121.32312:32.32322:上海市红牛而是路可是减肥工厂");
 			}
 		});
-		btnListDevice = (Button) findViewById(R.id.btn_list_device);
 		btnListDevice.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				selectDevice(true);
 			}
 		});
-		progressAutoConnect = (ProgressBar) findViewById(R.id.progress_auto_connect);
-		autoConnTask = new AutoConnectTask(this);
-		if(!adapter.isEnabled()) {
-			Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivityForResult(intent, REQUEST_ENABLE_BT);
-			//不做提示强行打开蓝牙
-			//adapter.enable();
-		} else {
+		
+		if(adapter.isEnabled()) {
 			autoConnTask.execute();
 		}
 	}
-	
+
 	@Override
 	protected void onStart() {
+		//注册广播接收和广播结束的filter  
+		IntentFilter intentFilter = new IntentFilter();
+	    intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+	    registerReceiver(blueStatusReceiver,intentFilter);
+	    
+	    if(!adapter.isEnabled()) {
+			//Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			//startActivityForResult(intent, REQUEST_ENABLE_BT);
+			//不做提示强行打开蓝牙
+			if(!adapter.enable()) {
+				displayLongToast("蓝牙不可用！");
+			}
+	    }
 		super.onStart();
+	}
+	
+	@Override
+	protected void onStop() {
+		unregisterReceiver(blueStatusReceiver);	//反注册广播接收器
+		super.onStop();
 	}
 	
 	@Override
@@ -89,10 +113,18 @@ public class MainActivity extends Activity {
 	}
 	
 	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if(adapter.isEnabled()) {
+			adapter.disable();
+		}
+	}
+	
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
-		case REQUEST_ENABLE_BT:
+		case REQUEST_ENABLE_BT:	//强行打开蓝牙时，该项不可用
 			if (resultCode == Activity.RESULT_OK) {
 				displayLongToast("打开蓝牙成功！");
 				autoConnTask.execute();
@@ -133,6 +165,30 @@ public class MainActivity extends Activity {
 			break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	/**
+	 * 蓝牙状态广播接收器
+	 * @author Administrator
+	 *
+	 */
+	class BlueToothStatusReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+				int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,BluetoothAdapter.STATE_OFF);
+				if (state == BluetoothAdapter.STATE_ON) {
+					displayLongToast("打开蓝牙成功！");
+					autoConnTask.execute();
+				} else if(state == BluetoothAdapter.STATE_OFF) {
+					displayLongToast("蓝牙不可用！");
+					finish();
+				}
+			}
+		}
+		
 	}
 	
 	/**
