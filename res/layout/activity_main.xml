@@ -14,18 +14,6 @@
         android:layout_marginTop="120dp" />
 
     <Button
-        android:id="@+id/btn_send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="113dp"
-        android:height="80sp"
-        android:text="@string/btn_send"
-        android:textSize="30sp"
-        android:visibility="gone"
-        android:width="150sp" />
-    <Button
         android:id="@+id/btn_list_device"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,5 +25,15 @@
         android:textSize="30sp"
         android:visibility="gone"
         android:width="150sp" />
+
+    <TextView
+        android:id="@+id/lonlat_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp" 
+        android:textSize="25sp"
+        android:text="etseitoj"/>
 
 </RelativeLayout>
